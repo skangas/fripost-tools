@@ -22,6 +22,9 @@ Necessary steps to add a user to the system:
 
 our $VERSION = '0.01';
 
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+
 use Data::Dumper;
 use DateTime;
 use Email::Valid;

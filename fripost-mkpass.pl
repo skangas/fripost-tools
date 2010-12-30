@@ -10,6 +10,9 @@ fripost-mkpass.pl - Create a random new password
 
 =cut
 
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+
 our $VERSION = '0.01';
 
 use Fripost::Password;
