@@ -17,14 +17,13 @@ use Digest::MD5;
 use Exporter;
 use MIME::Base64;
 
-our @EXPORT = qw/smd5 make_salt/
+our @EXPORT = qw/smd5 make_salt/;
 
 sub smd5 {
     my $pw = shift;
     my $salt = shift || &make_salt();
     return "{SMD5}" . pad_base64( MIME::Base64::encode( Digest::MD5::md5( $pw . $salt ) . $salt, '' ) );
 }
-
 
 sub make_salt {
     my $len   = 8 + int( rand(8) );
@@ -33,6 +32,14 @@ sub make_salt {
         push( @bytes, rand(255) );
     }
     return pack( 'C*', @bytes );
+}
+
+sub pad_base64 {
+    my $b64_digest = shift;
+    while ( length($b64_digest) % 4 ) {
+        $b64_digest .= '=';
+    }
+    return $b64_digest;
 }
 
 =head1 AUTHOR

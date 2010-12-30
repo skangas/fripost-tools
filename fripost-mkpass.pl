@@ -24,7 +24,6 @@ my $password = mkpasswd(
     -minnum => 5,
     -minspecial => 3
 );
-$user{password} = smd5($password);
 
 # Show the information that will be inserted
 say "Generated password: $password";
