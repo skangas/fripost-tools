@@ -25,9 +25,11 @@ our $VERSION = '0.01';
 use Data::Dumper;
 use DateTime;
 use Email::Valid;
+use Fripost::Password;
 use Fripost::Schema;
 use IO::Prompt;
 use Getopt::Long;
+use String::MkPasswd qw/mkpasswd/;
 use YAML::Syck;
 
 ## Get command line options
@@ -46,12 +48,14 @@ my $schema = Fripost::Schema->connect(
 
 my %user;
 
+say "Adding a new virtual user.";
+
 # Get the full e-mail of the user (aka e-mail)
 while (not defined $user{username}) {
-    $user{username} = prompt "Enter the full e-mail: ";
+    $user{username} = prompt "New username: ";
     if (!Email::Valid->address($user{username})) {
         undef $user{username};
-        say "This is not a vaild e-mail address. Try again."
+        say "This is not a valid e-mail address. Try again."
     }
 }
 
@@ -62,10 +66,6 @@ $user{name} = prompt "Full (real) name: ";
 my @parts = split /\@/, $user{username};
 my $username = $parts[0];
 my $domain   = $parts[1];
-
-print "Username: $username\nDomain:$domain\n";
-
-die;
 
 # Set domain name
 $user{domain} = $domain;
@@ -80,10 +80,29 @@ $user{change_date} = $now;
 
 $user{active} = 1;
 
-my $user = $schema->resultset('Mailbox')->new(\%user);
+# Generate password
+my $password = mkpasswd(
+    -length => 20,
+    -minnum => 5,
+    -minspecial => 3
+);
+$user{password} = smd5($password);
 
-# Make the insert into database
-$user->insert;
+# Show the information that will be inserted
+say Dumper \%user;
+say "Generated password: ";
+say $password;
+
+# Make the insert after a prompt
+my $ok = prompt "Is this OK? ", -yn;
+
+if (!$ok) {
+    say "Aborted by user."
+} else {
+    my $user = $schema->resultset('Mailbox')->new(\%user);
+    $user->insert;
+    say "New account added."
+}
 
 =head1 AUTHOR
 
@@ -91,7 +110,7 @@ Stefan Kangas C<< <skangas at skangas.se> >>
 
 =head1 COPYRIGHT
 
-Copyright 2010 Stefan Kangas, all rights reserved.
+Copyright 2010 Stefan Kangas.
 
 =head1 LICENSE
 
