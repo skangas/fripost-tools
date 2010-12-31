@@ -35,6 +35,68 @@ use Getopt::Long;
 use String::MkPasswd qw/mkpasswd/;
 use YAML::Syck;
 
+# Prompt for user info
+sub read_user_info {
+    my %user;
+    # Get the full e-mail of the user (aka e-mail)
+    while (not defined $user{username}) {
+        $user{username} = prompt "New username: ";
+        if (!($user{username} =~ /\@/)) {
+            $user{username} .= '@fripost.org';
+            say "Using $user{username}";
+        }
+        if (!Email::Valid->address($user{username})) {
+            undef $user{username};
+            say "This is not a valid e-mail address. Try again."
+        }
+    }
+
+    # Full name of user
+    $user{name} = prompt "Full (real) name: ";
+
+    # Extrapolate domain from full e-mail
+    my @parts = split /\@/, $user{username};
+    my $username = $parts[0];
+    my $domain   = $parts[1];
+
+    # Set domain name
+    $user{domain} = $domain;
+
+    # Construct maildir from domain and user
+    $user{maildir} = "$domain/$username/Maildir";
+
+    # Set dates
+    my $now = DateTime->now(
+        # locale => 'sv_SE',
+        # time_zone => 'Europe/Stockholm',
+    );
+    $user{create_date} = $now;
+    $user{change_date} = $now;
+
+    $user{active} = 1;
+
+    # Generate password
+    my $password = mkpasswd(
+        -length => 20,
+        -minnum => 5,
+        -minspecial => 3
+    );
+    $user{password} = smd5($password);
+
+    # Show the information that will be inserted
+    say Dumper \%user;
+    say "Generated password: $password";
+
+    # Ask the user if the information is OK
+    my $confirmed = prompt "Is this OK? ", -yn;
+
+    if ($confirmed) {
+        return \%user;
+    } else {
+        return undef;
+    }
+}
+
 ## Get command line options
 our $conf = LoadFile('default.yml');
 
@@ -49,63 +111,32 @@ my $schema = Fripost::Schema->connect(
     $conf->{dbi_dsn}, $conf->{admuser}, $conf->{admpass}, {} #\%dbi_params
 );
 
-my %user;
-
 say "Adding a new virtual user.";
 
-# Get the full e-mail of the user (aka e-mail)
-while (not defined $user{username}) {
-    $user{username} = prompt "New username: ";
-    if (!Email::Valid->address($user{username})) {
-        undef $user{username};
-        say "This is not a valid e-mail address. Try again."
-    }
+my $user = read_user_info();
+
+if (!defined $user) {
+    say "Aborted by user.";
+    exit 1;
 }
 
-# Full name of user
-$user{name} = prompt "Full (real) name: ";
+## Create maildir
+my ($login,$pass,$uid,$gid) = getpwnam($conf->{maildir_user})
+    or die "maildir_user not found: $conf->{maildir_user}";
 
-# Extrapolate domain from full e-mail
-my @parts = split /\@/, $user{username};
-my $username = $parts[0];
-my $domain   = $parts[1];
+my $maildir_loc = $conf->{maildir_base} . '/' . $user->{maildir};
 
-# Set domain name
-$user{domain} = $domain;
+system(qw/sudo mkdir -p -m/, $conf->{maildir_umask}, $maildir_loc =~ m!(.+)/Maildir$!);
+system(qw/sudo maildirmake/, $maildir_loc);
+system(qw/sudo chmod/, $conf->{maildir_umask}, $maildir_loc);
+system(qw/sudo chown -R/, "$conf->{maildir_user}:$conf->{maildir_group}", $conf->{maildir_base});
 
-# Construct maildir from domain and user
-$user{maildir} = "$domain/$username/Maildir";
+say "Created maildir in $maildir_loc";
 
-# Set dates
-my $now = DateTime->now();
-$user{create_date} = $now;
-$user{change_date} = $now;
-
-$user{active} = 1;
-
-# Generate password
-my $password = mkpasswd(
-    -length => 20,
-    -minnum => 5,
-    -minspecial => 3
-);
-$user{password} = smd5($password);
-
-# Show the information that will be inserted
-say Dumper \%user;
-say "Generated password: ";
-say $password;
-
-# Make the insert after a prompt
-my $ok = prompt "Is this OK? ", -yn;
-
-if (!$ok) {
-    say "Aborted by user."
-} else {
-    my $user = $schema->resultset('Mailbox')->new(\%user);
-    $user->insert;
-    say "New account added."
-}
+## Insert user into database
+my $db_user = $schema->resultset('Mailbox')->new($user);
+$db_user->insert;
+say "New account $user->{username} added.";
 
 =head1 AUTHOR
 

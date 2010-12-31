@@ -26,10 +26,10 @@ __PACKAGE__->load_components(qw/InflateColumn::DateTime/);
 __PACKAGE__->table('mailbox');
 __PACKAGE__->add_columns(qw/ username password name maildir domain active /);
 __PACKAGE__->add_columns(
-    create_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => "se_SV" },
-    change_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => "se_SV" }
+    create_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => 'sv_SE' },
+    change_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => 'sv_SE' }
 );
-  
+
 __PACKAGE__->set_primary_key('username');
 
 =head1 NAME
