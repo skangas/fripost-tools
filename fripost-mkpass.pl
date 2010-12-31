@@ -19,14 +19,16 @@ use Fripost::Password;
 use String::MkPasswd qw/mkpasswd/;
 
 # Generate password
-my $password = mkpasswd(
+my $password = $ARGV[0];
+
+$password //= mkpasswd(
     -length => 20,
     -minnum => 5,
     -minspecial => 3
 );
 
 # Show the information that will be inserted
-say "Generated password: $password";
+say "Password: $password";
 say "Salted MD5: " . smd5($password);
 
 =head1 AUTHOR
