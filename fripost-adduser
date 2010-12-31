@@ -27,29 +27,18 @@ use lib "$Bin/lib";
 
 use Data::Dumper;
 use DateTime;
-use Email::Valid;
 use Fripost::Password;
+use Fripost::Prompt;
 use Fripost::Schema;
 use IO::Prompt;
 use Getopt::Long;
-use String::MkPasswd qw/mkpasswd/;
 use YAML::Syck;
 
 # Prompt for user info
 sub read_user_info {
     my %user;
-    # Get the full e-mail of the user (aka e-mail)
-    while (not defined $user{username}) {
-        $user{username} = prompt "New username: ";
-        if (!($user{username} =~ /\@/)) {
-            $user{username} .= '@fripost.org';
-            say "Using $user{username}";
-        }
-        if (!Email::Valid->address($user{username})) {
-            undef $user{username};
-            say "This is not a valid e-mail address. Try again."
-        }
-    }
+
+    $user{username} = prompt_username("New username: ");
 
     # Full name of user
     $user{name} = prompt "Full (real) name: ";
@@ -76,16 +65,12 @@ sub read_user_info {
     $user{active} = 1;
 
     # Generate password
-    my $password = mkpasswd(
-        -length => 20,
-        -minnum => 5,
-        -minspecial => 3
-    );
+    my $password = prompt_password();
     $user{password} = smd5($password);
 
     # Show the information that will be inserted
     say Dumper \%user;
-    say "Generated password: $password";
+    say "Using password $password";
 
     # Ask the user if the information is OK
     my $confirmed = prompt "Is this OK? ", -yn;
@@ -104,6 +89,7 @@ GetOptions(
     'dbi_dsn'    => \$conf->{dbi_dsn},
     'admuser=s' => \$conf->{admuser},
     'admpass=s' => \$conf->{admpass},
+    'pretend'   => \$conf->{pretend},
 ) or die "Unable to get command line options.";
 
 # Connect to the database
@@ -120,6 +106,11 @@ if (!defined $user) {
     exit 1;
 }
 
+if ($conf->{pretend}) {
+    say "Nothing to do since we are pretending...";
+    exit 0;
+}
+
 ## Create maildir
 my ($login,$pass,$uid,$gid) = getpwnam($conf->{maildir_user})
     or die "maildir_user not found: $conf->{maildir_user}";
@@ -132,6 +123,8 @@ system(qw/sudo chmod/, $conf->{maildir_umask}, $maildir_loc);
 system(qw/sudo chown -R/, "$conf->{maildir_user}:$conf->{maildir_group}", $conf->{maildir_base});
 
 say "Created maildir in $maildir_loc";
+
+## TODO: Make sure the user does not already exist
 
 ## Insert user into database
 my $db_user = $schema->resultset('Mailbox')->new($user);
