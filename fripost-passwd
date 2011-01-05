@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+
+use 5.010_000;
+use warnings;
+use strict;
+
+=head1 NAME
+
+fripost-passwd - Change password of user
+
+=cut
+
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+
+our $VERSION = '0.01';
+
+use Fripost::Password;
+use Fripost::Prompt;
+use Fripost::Schema;
+use Getopt::Long;
+use YAML::Syck;
+
+my $username = $ARGV[0];
+$username //= prompt_username();
+my $password = prompt_password();
+
+# Show the information that will be inserted
+say "Password: $password";
+say "Salted MD5: " . smd5($password);
+
+## Get command line options
+our $conf = LoadFile('default.yml');
+
+GetOptions(
+    'dbi_dsn'    => \$conf->{dbi_dsn},
+    'admuser=s' => \$conf->{admuser},
+    'admpass=s' => \$conf->{admpass},
+    'pretend'   => \$conf->{pretend},
+) or die "Unable to get command line options.";
+
+if ($conf->{pretend}) {
+    say "Nothing to do since we are pretending...";
+    exit 0;
+}
+
+# Connect to the database
+my $schema = Fripost::Schema->connect(
+    $conf->{dbi_dsn}, $conf->{admuser}, $conf->{admpass}, {} #\%dbi_params
+);
+
+my $row = $schema->resultset('Mailbox')->find($username);
+
+$row->password(smd5($password));
+
+$row->update;
+
+say "Updated password for $username.";
+
+# TODO: ändra changedate vid varje insert
+
+=head1 AUTHOR
+
+Stefan Kangas C<< <skangas at skangas.se> >>
+
+=head1 COPYRIGHT
+
+Copyright 2010 Stefan Kangas.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as perl itself.
+
+=cut
