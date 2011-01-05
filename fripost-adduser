@@ -52,7 +52,7 @@ sub read_user_info {
     $user{domain} = $domain;
 
     # Construct maildir from domain and user
-    $user{maildir} = "$domain/$username/Maildir";
+    $user{maildir} = "$domain/$username/Maildir/"; # trailing slash important
 
     # Set dates
     my $now = DateTime->now(
@@ -117,7 +117,8 @@ my ($login,$pass,$uid,$gid) = getpwnam($conf->{maildir_user})
 
 my $maildir_loc = $conf->{maildir_base} . '/' . $user->{maildir};
 
-system(qw/sudo mkdir -p -m/, $conf->{maildir_umask}, $maildir_loc =~ m!(.+)/Maildir$!);
+$maildir_loc =~ m!(.+)/Maildir/$!;
+system(qw/sudo mkdir -p -m/, $conf->{maildir_umask}, $1);
 system(qw/sudo maildirmake/, $maildir_loc);
 system(qw/sudo chmod/, $conf->{maildir_umask}, $maildir_loc);
 system(qw/sudo chown -R/, "$conf->{maildir_user}:$conf->{maildir_group}", $conf->{maildir_base});
