@@ -26,7 +26,6 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 
 use Data::Dumper;
-use DateTime;
 use Fripost::Password;
 use Fripost::Prompt;
 use Fripost::Schema;
@@ -53,14 +52,6 @@ sub read_user_info {
 
     # Construct maildir from domain and user
     $user{maildir} = "$domain/$username/Maildir/"; # trailing slash important
-
-    # Set dates
-    my $now = DateTime->now(
-        # locale => 'sv_SE',
-        # time_zone => 'Europe/Stockholm',
-    );
-    $user{create_date} = $now;
-    $user{change_date} = $now;
 
     $user{active} = 1;
 
