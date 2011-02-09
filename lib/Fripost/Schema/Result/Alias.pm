@@ -1,4 +1,4 @@
-package Fripost::Schema::Result::Mailbox;
+package Fripost::Schema::Result::Alias;
 
 use 5.010_000;
 use warnings;
@@ -6,35 +6,33 @@ use strict;
 
 use base qw/DBIx::Class::Core/;
 
-# mysql> describe mailbox;
+# mysql> describe alias;
 # +-------------+--------------+------+-----+---------------------+-------+
 # | Field       | Type         | Null | Key | Default             | Extra |
 # +-------------+--------------+------+-----+---------------------+-------+
-# | username    | varchar(255) | NO   | PRI |                     |       | 
-# | password    | varchar(255) | NO   |     |                     |       | 
-# | name        | varchar(255) | NO   |     |                     |       | 
-# | maildir     | varchar(255) | NO   |     |                     |       | 
+# | address     | varchar(255) | NO   | PRI |                     |       | 
+# | goto        | text         | NO   |     | NULL                |       | 
 # | domain      | varchar(255) | NO   |     |                     |       | 
 # | create_date | datetime     | NO   |     | 0000-00-00 00:00:00 |       | 
 # | change_date | timestamp    | NO   |     | CURRENT_TIMESTAMP   |       | 
 # | active      | tinyint(4)   | NO   |     | 1                   |       | 
 # +-------------+--------------+------+-----+---------------------+-------+
-# 8 rows in set (0.00 sec)
+# 6 rows in set (0.00 sec)
 
 __PACKAGE__->load_components(qw/InflateColumn::DateTime/);
 
-__PACKAGE__->table('mailbox');
-__PACKAGE__->add_columns(qw/ username password name maildir domain active /);
+__PACKAGE__->table('domain');
+__PACKAGE__->add_columns(qw/ address goto domain create_date change_date active /);
 __PACKAGE__->add_columns(
-    create_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => 'sv_SE' },
-    change_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => 'sv_SE' }
+    create_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => "se_SV" },
+    change_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => "se_SV" },
 );
-
-__PACKAGE__->set_primary_key('username');
+  
+__PACKAGE__->set_primary_key('domain');
 
 =head1 NAME
 
-Fripost::Schema::Result::Mailbox - 
+Fripost::Schema::Result::Alias - 
 
 =head1 AUTHOR
 
@@ -51,4 +49,4 @@ under the same terms as perl itself.
 
 =cut
 
-1; # End of Mailbox.pm
+1; # End of Alias.pm
