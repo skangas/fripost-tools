@@ -6,7 +6,7 @@ use strict;
 
 =head1 NAME
 
-fripost-mkpass.pl - Create a random new password
+fripost-mkpass - Create a random new password
 
 =cut
 

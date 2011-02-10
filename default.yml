@@ -1,7 +1,3 @@
 # default.yml -- defaults for fripost administrative scripts
 ---
 dbi_dsn: dbi:mysql:mail;host=127.0.0.1;port=3306
-maildir_base: /home/mail/virtual/
-maildir_user: postfix
-maildir_group: postfix
-maildir_umask: 0700
