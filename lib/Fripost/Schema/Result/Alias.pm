@@ -21,14 +21,14 @@ use base qw/DBIx::Class::Core/;
 
 __PACKAGE__->load_components(qw/InflateColumn::DateTime/);
 
-__PACKAGE__->table('domain');
+__PACKAGE__->table('alias');
 __PACKAGE__->add_columns(qw/ address goto domain create_date change_date active /);
 __PACKAGE__->add_columns(
     create_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => "se_SV" },
     change_date => { data_type => 'datetime', timezone => "Europe/Stockholm", locale => "se_SV" },
 );
   
-__PACKAGE__->set_primary_key('domain');
+__PACKAGE__->set_primary_key('address');
 
 =head1 NAME
 
