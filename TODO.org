@@ -1,0 +1,6 @@
+# -*- mode: org-mode; truncate-lines: nil -*-
+
+* Planned
+** Send email to newly created users
+** Log changes in log table
+
