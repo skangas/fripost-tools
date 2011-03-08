@@ -30,39 +30,30 @@ use YAML::Syck;
 
 # Prompt for user info
 sub read_user_info {
-    my %user;
-
-    $user{username} = prompt_username("New username: ");
-
-    # Full name of user
-    $user{name} = prompt "Full (real) name: ";
-
-    # Extrapolate domain from full e-mail
-    my @parts = split /\@/, $user{username};
-    my $username = $parts[0];
-    my $domain   = $parts[1];
-
-    # Set domain name
-    $user{domain} = $domain;
-
-    # Construct maildir from domain and user
-    $user{maildir} = "$domain/$username/Maildir/"; # trailing slash important
-
-    $user{active} = 1;
-
-    # Generate password
+    $username    = prompt_username("New username: ");
+    my $name     = prompt "Full (real) name: ";
+    my $domain   = (split /\@/, $username)[1];
+    my $maildir  = "$domain/". (split /\@/, $username)[0] . "/Maildir/"; # trailing slash important
+    my $active   = 1;
     my $password = prompt_password();
-    $user{password} = smd5($password);
 
     # Show the information that will be inserted
-    say Dumper \%user;
+    my $user = {
+        username => $username,
+        name     => $name,
+        domain   => $domain,
+        maildir  => $maildir,
+        active   => $active,
+        password => smd5($password),
+    };
+    print Dumper $user;
     say "Using password $password";
 
     # Ask the user if the information is OK
     my $confirmed = prompt "Is this OK? ", -yn;
 
     if ($confirmed) {
-        return \%user;
+        return $user;
     } else {
         return undef;
     }
