@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+
+use 5.010_000;
+use warnings;
+use strict;
+
+=head1 NAME
+
+fripost-newalias - Add a new alias to the system
+
+=head1 DESCRIPTION
+
+This script eases the burden of adding a new alias to the system.
+
+=cut
+
+our $VERSION = '0.01';
+
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+
+use Data::Dumper;
+use Fripost::Password;
+use Fripost::Prompt;
+use Fripost::Schema;
+use IO::Prompt;
+use Getopt::Long;
+use YAML::Syck;
+
+## Get command line options
+our $conf = LoadFile('default.yml');
+
+GetOptions(
+    'dbi_dsn'    => \$conf->{dbi_dsn},
+    'admuser=s' => \$conf->{admuser},
+    'admpass=s' => \$conf->{admpass},
+    'pretend'   => \$conf->{pretend},
+) or die "Unable to get command line options.";
+
+# Connect to the database
+my $schema = Fripost::Schema->connect(
+    $conf->{dbi_dsn}, $conf->{admuser}, $conf->{admpass}, {} #\%dbi_params
+);
+
+my $goto = shift @ARGV;
+my @addr = @ARGV;
+
+$goto //= prompt_user("Alias goto address: ");
+
+@addr || push @addr, prompt "Alias address: ";
+
+if ($conf->{pretend}) {
+    say "Nothing to do since we are pretending...";
+    exit 0;
+}
+
+## Insert alias into database
+for my $addr (@addr) {
+    my $rs = $schema->resultset('Alias')->search({
+        address => $addr,
+    });
+    if (!$rs->count) {
+        my $db_alias = $schema->resultset('Alias')->new({
+            address => $addr,
+            goto    => $goto,
+            domain  => (split /\@/, $addr)[1],
+        });
+        $db_alias->insert;
+
+        say "New alias added from $addr to $goto.";
+    }
+    else {
+        say "There already exists an alias for $addr.";
+    }
+}
+
+=head1 AUTHOR
+
+Stefan Kangas C<< <skangas at skangas.se> >>
+
+=head1 COPYRIGHT
+
+Copyright 2010,2011 Stefan Kangas.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as perl itself.
+
+=cut
