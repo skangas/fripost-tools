@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+
+use 5.010_000;
+use warnings;
+use strict;
+
+=head1 NAME
+
+fripost-newdomain - Add a new domain to the system
+
+=head1 DESCRIPTION
+
+This script eases the burden of adding a new domain to the system.
+
+=cut
+
+our $VERSION = '0.01';
+
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+
+use Data::Dumper;
+use Fripost::Password;
+use Fripost::Prompt;
+use Fripost::Schema;
+use IO::Prompt;
+use Getopt::Long;
+use YAML::Syck;
+
+## Get command line options
+our $conf = LoadFile('default.yml');
+
+GetOptions(
+    'dbi_dsn'    => \$conf->{dbi_dsn},
+    'admuser=s' => \$conf->{admuser},
+    'admpass=s' => \$conf->{admpass},
+    'pretend'   => \$conf->{pretend},
+) or die "Unable to get command line options.";
+
+# Connect to the database
+my $schema = Fripost::Schema->connect(
+    $conf->{dbi_dsn}, $conf->{admuser}, $conf->{admpass}, {} #\%dbi_params
+);
+
+say "Adding a new domain.";
+
+my %domain;
+$domain{domain}      = prompt "Domain name: ";
+$domain{description} = prompt_username("User to associate domain with: ");
+
+## TODO: Make sure the user does exists
+
+if ($conf->{pretend}) {
+    say "Nothing to do since we are only pretending...";
+    exit 0;
+}
+
+## Insert domain into database
+my $db_domain = $schema->resultset('Domain')->new(\%domain);
+$db_domain->insert;
+say "New domain $domain{domain} added.";
+
+sub create_alias {
+    my ($schema, $from, $to, $domain) = @_;
+
+    my $alias = $schema->resultset('Alias')->new({
+        address => $from,
+        goto    => $to,
+        domain  => $domain,
+    });
+
+    $alias->insert;
+
+    say "Created alias from $from to $to";
+}
+
+create_alias($schema, 'abuse@' . $domain{domain}     ,'abuse@fripost.org'     ,$domain{domain});
+create_alias($schema, 'postmaster@' . $domain{domain},'postmaster@fripost.org',$domain{domain});
+
+=head1 AUTHOR
+
+Stefan Kangas C<< <skangas at skangas.se> >>
+
+=head1 COPYRIGHT
+
+Copyright 2010,2011 Stefan Kangas.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as perl itself.
+
+=cut
