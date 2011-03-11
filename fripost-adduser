@@ -16,11 +16,13 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 
 use Data::Dumper;
+use File::Slurp qw(slurp);
 use Fripost::Password;
 use Fripost::Prompt;
 use Fripost::Schema;
 use IO::Prompt;
 use Getopt::Long;
+use MIME::Lite;
 use YAML::Syck;
 
 # Prompt for user info
@@ -91,6 +93,18 @@ die "User already exists"
 my $db_user = $schema->resultset('Mailbox')->new($user);
 $db_user->insert;
 say "New account $user->{username} added.";
+
+## Send email
+my $msg = MIME::Lite->new(
+    From    => 'admin@fripost.org',
+    To      => $user->{username},
+    Subject => 'Välkommen till Fripost!',
+    Data    => slurp('templ/new_user_mail.tt'), # TODO: actually use TT
+);
+$msg->send();
+
+say "Sent welcome message: ";
+say $message->as_text;
 
 =head1 AUTHOR
 
