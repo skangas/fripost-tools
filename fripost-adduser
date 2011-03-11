@@ -83,7 +83,9 @@ if ($conf->{pretend}) {
     exit 0;
 }
 
-## TODO: Make sure the user does not already exist
+die "User already exists"
+    if ($schema->resultset('Mailbox')->search({
+        username => $user->{username} })->count);
 
 ## Insert user into database
 my $db_user = $schema->resultset('Mailbox')->new($user);
