@@ -8,6 +8,11 @@ use strict;
 
 fripost-newalias - Add a new alias to the system
 
+=head1 SYNOPSIS
+
+fripost-newalias
+fripost-newalias GOTO FROM...
+
 =cut
 
 our $VERSION = '0.01';
