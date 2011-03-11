@@ -8,10 +8,6 @@ use strict;
 
 fripost-newdomain - Add a new domain to the system
 
-=head1 DESCRIPTION
-
-This script eases the burden of adding a new domain to the system.
-
 =cut
 
 our $VERSION = '0.01';

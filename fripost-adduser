@@ -8,11 +8,6 @@ use strict;
 
 fripost-adduser - Add a new mailbox to the system
 
-=head1 DESCRIPTION
-
-This script eases the burden of adding a new user to the system.  It simply adds
-a new user to the database.
-
 =cut
 
 our $VERSION = '0.02';

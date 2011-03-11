@@ -8,10 +8,6 @@ use strict;
 
 fripost-newalias - Add a new alias to the system
 
-=head1 DESCRIPTION
-
-This script eases the burden of adding a new alias to the system.
-
 =cut
 
 our $VERSION = '0.01';
