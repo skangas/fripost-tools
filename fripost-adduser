@@ -104,7 +104,7 @@ my $msg = MIME::Lite->new(
 $msg->send();
 
 say "Sent welcome message: ";
-say $message->as_text;
+say $msg->as_text;
 
 =head1 AUTHOR
 
