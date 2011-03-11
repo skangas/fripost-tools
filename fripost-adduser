@@ -30,7 +30,7 @@ use YAML::Syck;
 
 # Prompt for user info
 sub read_user_info {
-    $username    = prompt_username("New username: ");
+    my $username = prompt_username("New username: ");
     my $name     = prompt "Full (real) name: ";
     my $domain   = (split /\@/, $username)[1];
     my $maildir  = "$domain/". (split /\@/, $username)[0] . "/Maildir/"; # trailing slash important
