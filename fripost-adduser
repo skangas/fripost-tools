@@ -99,7 +99,7 @@ my $msg = MIME::Lite->new(
     From    => 'admin@fripost.org',
     To      => $user->{username},
     Subject => 'Välkommen till Fripost!',
-    Data    => slurp('templ/new_user_mail.tt'), # TODO: actually use TT
+    Data    => scalar slurp('templ/new_user_mail.tt'), # TODO: actually use TT
 );
 $msg->send();
 

@@ -21,6 +21,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 
 use Data::Dumper;
+use Email::Valid;
 use Fripost::Password;
 use Fripost::Prompt;
 use Fripost::Schema;
@@ -43,11 +44,10 @@ my $schema = Fripost::Schema->connect(
     $conf->{dbi_dsn}, $conf->{admuser}, $conf->{admpass}, {} #\%dbi_params
 );
 
+# Get information
 my $goto = shift @ARGV;
 my @addr = @ARGV;
-
 $goto //= prompt_username("Alias goto address: ");
-
 @addr || push @addr, prompt "Alias address: ";
 
 if ($conf->{pretend}) {
@@ -61,6 +61,10 @@ for my $addr (@addr) {
         address => $addr,
     });
     if (!$rs->count) {
+        unless (Email::Valid->address($addr)) {
+            say "WARN: skipping invalid address $addr";
+            next;
+        }
         my $db_alias = $schema->resultset('Alias')->new({
             address => $addr,
             goto    => $goto,
