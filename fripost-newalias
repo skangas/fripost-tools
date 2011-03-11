@@ -41,7 +41,7 @@ my $schema = Fripost::Schema->connect(
 my $goto = shift @ARGV;
 my @addr = @ARGV;
 
-$goto //= prompt_user("Alias goto address: ");
+$goto //= prompt_username("Alias goto address: ");
 
 @addr || push @addr, prompt "Alias address: ";
 
