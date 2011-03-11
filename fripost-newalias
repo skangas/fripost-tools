@@ -15,8 +15,6 @@ fripost-newalias GOTO FROM...
 
 =cut
 
-our $VERSION = '0.01';
-
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 
@@ -45,7 +43,7 @@ my $schema = Fripost::Schema->connect(
 );
 
 # Get information
-my $goto = shift @ARGV;
+my $goto = fix_username(shift @ARGV);
 my @addr = @ARGV;
 $goto //= prompt_username("Alias goto address: ");
 @addr || push @addr, prompt "Alias address: ";
@@ -55,16 +53,32 @@ if ($conf->{pretend}) {
     exit 0;
 }
 
+# Show goto adress
+say "goto adress: $goto";
+
+# Show from adresses
+@addr = grep {
+    if (Email::Valid->address($_)) {
+        1;
+    }
+    else {
+        say "WARN: skipping invalid address $_";
+        undef;
+    }
+} @addr;
+if (@addr == 0) {
+    say "No valid destination adresses. Aborting...";
+    exit 1;
+}
+say "dest adress: " . (join " ", @addr);
+ask_if_ok_or_abort();
+
 ## Insert alias into database
 for my $addr (@addr) {
     my $rs = $schema->resultset('Alias')->search({
         address => $addr,
     });
     if (!$rs->count) {
-        unless (Email::Valid->address($addr)) {
-            say "WARN: skipping invalid address $addr";
-            next;
-        }
         my $db_alias = $schema->resultset('Alias')->new({
             address => $addr,
             goto    => $goto,
