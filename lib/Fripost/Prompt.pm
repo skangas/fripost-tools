@@ -30,9 +30,20 @@ sub fix_username {
 }
 
 sub prompt_password {
-    my $prompt = shift;
+    my ($prompt, $prompt2) = @_;
     $prompt //= "Enter new password (blank for random): ";
-    my $password = prompt $prompt, -e => '*';
+    $prompt2 //= "Enter new password again (blank for random): ";
+
+    my $password;
+    while (not defined $password) {
+        $password = prompt $prompt, -e => '*';
+        my $confirm = prompt $prompt2, -e => '*';
+        unless ($password eq $confirm) {
+            undef $password;
+            say "Passwords do not match";
+        }
+    }
+
     if (!length $password) {
         $password = mkpasswd(
             -length => 10,
