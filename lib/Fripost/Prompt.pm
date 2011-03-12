@@ -20,10 +20,19 @@ use String::MkPasswd qw/mkpasswd/;
 
 our @EXPORT = qw(prompt_password prompt_username);
 
+sub fix_username {
+    my ($nam) = @_;
+    if ($nam !~ /\@/) {
+        $nam .= '@fripost.org';
+        say "Using $nam";
+    }
+    return $nam;
+}
+
 sub prompt_password {
     my $prompt = shift;
     $prompt //= "Enter new password (blank for random): ";
-    my $password = prompt $prompt;
+    my $password = prompt $prompt, -e => '*';
     if (!length $password) {
         $password = mkpasswd(
             -length => 10,
@@ -32,25 +41,30 @@ sub prompt_password {
         );
         say "Generated password: $password";    
     }
-    return $password;
+    return smd5($password);
 }
 
 sub prompt_username {
     my $prompt = shift;
     $prompt //= "Enter username: ";
-    my $username;
-    while (not defined $username) {
-        $username = prompt $prompt;
-        if (!($username =~ /\@/)) {
-            $username .= '@fripost.org';
-            say "Using $username";
-        }
-        if (!Email::Valid->address($username)) {
-            undef $username;
+    my $nam;
+    while (not defined $nam) {
+        $nam = prompt $prompt;
+        $nam = fix_username($nam);
+        if (!Email::Valid->address($nam)) {
+            undef $nam;
             say "This is not a valid e-mail address. Try again."
         }
     }
-    return $username;
+    return $nam;
+}
+
+sub ask_if_ok_or_abort {
+    my $confirmed = prompt "Is this OK? [no will abort]", -ynt;
+    unless ($confirmed) {
+        say "User aborted";
+        exit 1;
+    }
 }
 
 =head1 AUTHOR

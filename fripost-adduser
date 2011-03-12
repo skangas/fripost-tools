@@ -41,26 +41,18 @@ sub read_user_info {
         domain   => $domain,
         maildir  => $maildir,
         active   => $active,
-        password => smd5($password),
+        password => $password,
     };
     print Dumper $user;
-    say "Using password $password";
 
-    # Ask the user if the information is OK
-    my $confirmed = prompt "Is this OK? ", -yn;
-
-    if ($confirmed) {
-        return $user;
-    } else {
-        return undef;
-    }
+    return $user;
 }
 
 ## Get command line options
 our $conf = LoadFile('default.yml');
 
 GetOptions(
-    'dbi_dsn'    => \$conf->{dbi_dsn},
+    'dbi_dsn'   => \$conf->{dbi_dsn},
     'admuser=s' => \$conf->{admuser},
     'admpass=s' => \$conf->{admpass},
     'pretend'   => \$conf->{pretend},
@@ -75,10 +67,7 @@ say "Adding a new virtual user.";
 
 my $user = read_user_info();
 
-if (!defined $user) {
-    say "Aborted by user.";
-    exit 1;
-}
+ask_if_ok_or_abort();
 
 if ($conf->{pretend}) {
     say "Nothing to do since we are pretending...";
