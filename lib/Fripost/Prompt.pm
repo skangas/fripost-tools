@@ -20,6 +20,16 @@ use String::MkPasswd qw/mkpasswd/;
 
 our @EXPORT = qw(prompt_password prompt_username);
 
+sub ask_if_ok_or_abort {
+    my ($msg) = @_;
+    $msg //= "Is this OK? [no will abort] ";
+    my $confirmed = prompt $msg, -ynt;
+    unless ($confirmed) {
+        say "User aborted";
+        exit 1;
+    }
+}
+
 sub fix_username {
     my ($nam) = @_;
     if ($nam !~ /\@/) {
@@ -29,15 +39,35 @@ sub fix_username {
     return $nam;
 }
 
+sub prompt_email {
+    my ($msg, $is_username) = @_;
+    $msg //= "Enter email: ";
+    my $email;
+    while (not defined $email) {
+        $email = prompt $msg;
+
+        if ($is_username) {
+            $email = fix_username($email)
+        }
+
+        if (!Email::Valid->address($email)) {
+            undef $email;
+            say "This is not a valid e-mail address. Try again."
+        }
+    }
+    return $email;
+    
+}
+
 sub prompt_password {
-    my ($prompt, $prompt2) = @_;
-    $prompt //= "Enter new password (blank for random): ";
-    $prompt2 //= "Enter new password again (blank for random): ";
+    my ($msg, $msg2) = @_;
+    $msg  //= "Enter new password (blank for random): ";
+    $msg2 //= "Enter new password again (blank for random): ";
 
     my $password;
     while (not defined $password) {
-        $password = prompt $prompt, -e => '*';
-        my $confirm = prompt $prompt2, -e => '*';
+        $password   = prompt $msg,  -e => '*';
+        my $confirm = prompt $msg2, -e => '*';
         unless ($password eq $confirm) {
             undef $password;
             say "Passwords do not match";
@@ -53,29 +83,6 @@ sub prompt_password {
         say "Generated password: $password";    
     }
     return smd5($password);
-}
-
-sub prompt_username {
-    my $prompt = shift;
-    $prompt //= "Enter username: ";
-    my $nam;
-    while (not defined $nam) {
-        $nam = prompt $prompt;
-        $nam = fix_username($nam);
-        if (!Email::Valid->address($nam)) {
-            undef $nam;
-            say "This is not a valid e-mail address. Try again."
-        }
-    }
-    return $nam;
-}
-
-sub ask_if_ok_or_abort {
-    my $confirmed = prompt "Is this OK? [no will abort]", -ynt;
-    unless ($confirmed) {
-        say "User aborted";
-        exit 1;
-    }
 }
 
 =head1 AUTHOR

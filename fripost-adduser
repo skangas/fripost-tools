@@ -30,7 +30,7 @@ use YAML::Syck;
 
 # Prompt for user info
 sub read_user_info {
-    my $username = prompt_username("New username: ");
+    my $username = prompt_email("New username: ", 'is_user');
     my $name     = prompt "Full (real) name: ";
     my $domain   = (split /\@/, $username)[1];
     my $maildir  = "$domain/". (split /\@/, $username)[0] . "/Maildir/"; # trailing slash important
@@ -103,6 +103,9 @@ say "Sent welcome message: ";
 say $msg->as_string;
 #say decode_qp($msg->as_string);
 
+ask_if_ok_or_abort("Send email with login information? ");
+
+prompt_email("Where should the email be sent? ");
 
 =head1 AUTHOR
 
