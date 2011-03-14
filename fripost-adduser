@@ -28,29 +28,6 @@ use MIME::Lite;
 use MIME::QuotedPrint;
 use YAML::Syck;
 
-# Prompt for user info
-sub read_user_info {
-    my $username = prompt_email("New username: ", 'is_user');
-    my $name     = prompt "Full (real) name: ";
-    my $domain   = (split /\@/, $username)[1];
-    my $maildir  = "$domain/". (split /\@/, $username)[0] . "/Maildir/"; # trailing slash important
-    my $active   = 1;
-    my $password = prompt_password();
-
-    # Show the information that will be inserted
-    my $user = {
-        username => $username,
-        name     => $name,
-        domain   => $domain,
-        maildir  => $maildir,
-        active   => $active,
-        password => $password,
-    };
-    print Dumper $user;
-
-    return $user;
-}
-
 ## Get command line options
 our $conf = LoadFile('default.yml');
 
@@ -67,19 +44,31 @@ my $schema = Fripost::Schema->connect(
 );
 
 say "Adding a new virtual user.";
+{
+    my $user = {
+        username => prompt_email("New username: ", 'is_user'),
+        name     => prompt "Full (real) name: ",
+        domain   => (split /\@/, $username)[1],
+        maildir  => "$domain/". (split /\@/, $username)[0] . "/Maildir/", # trailing slash important
+        active   => 1,
+        password => prompt_password(),
+    };
 
-my $user = read_user_info();
+    say "Username: $user->{username}";
+    say "Name:     $user->{name}";
+    say "Password: (hidden)";
 
-ask_if_ok_or_abort();
-
-if ($conf->{pretend}) {
-    say "Nothing to do since we are pretending...";
-    exit 0;
+    ask_if_ok_or_abort();
 }
 
 die "User already exists"
     if ($schema->resultset('Mailbox')->search({
         username => $user->{username} })->count);
+
+if ($conf->{pretend}) {
+    say "Nothing to do since we are pretending...";
+    exit 0;
+}
 
 ## Insert user into database
 my $db_user = $schema->resultset('Mailbox')->new($user);
