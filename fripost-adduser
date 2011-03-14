@@ -59,7 +59,7 @@ my $user;
     say "Name:     $user->{name}";
     say "Password: (hidden)";
 
-    ask_if_ok_or_abort();
+    confirm_or_abort();
 }
 
 die "User already exists"
@@ -93,7 +93,7 @@ say "Sent welcome message: ";
 say $msg->as_string;
 #say decode_qp($msg->as_string);
 
-ask_if_ok_or_abort("Send email with login information? ");
+confirm_or_abort("Send email with login information? ");
 
 prompt_email("Where should the email be sent? ");
 

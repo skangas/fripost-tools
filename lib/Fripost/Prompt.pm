@@ -20,7 +20,7 @@ use String::MkPasswd qw/mkpasswd/;
 
 our @EXPORT = qw(prompt_password prompt_username);
 
-sub ask_if_ok_or_abort {
+sub confirm_or_abort {
     my ($msg) = @_;
     $msg //= "Is this OK? [no will abort] ";
     my $confirmed = prompt $msg, -ynt;

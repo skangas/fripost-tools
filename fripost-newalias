@@ -71,7 +71,7 @@ if (@addr == 0) {
     exit 1;
 }
 say "dest adress: " . (join " ", @addr);
-ask_if_ok_or_abort();
+confirm_or_abort();
 
 ## Insert alias into database
 for my $addr (@addr) {
