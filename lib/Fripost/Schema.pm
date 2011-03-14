@@ -1,7 +1,6 @@
 package Fripost::Schema;
 
 use 5.010_000;
-use warnings;
 use strict;
 
 use base qw/DBIx::Class::Schema/;

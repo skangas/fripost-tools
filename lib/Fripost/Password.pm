@@ -1,7 +1,6 @@
-#!/usr/bin/perl
+package Fripost::Password;
 
 use 5.010_000;
-use warnings;
 use strict;
 
 =head1 NAME
