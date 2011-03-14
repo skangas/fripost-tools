@@ -44,8 +44,9 @@ my $schema = Fripost::Schema->connect(
 );
 
 say "Adding a new virtual user.";
+my $user;
 {
-    my $user = {
+    $user = {
         username => prompt_email("New username: ", 'is_user'),
         name     => prompt "Full (real) name: ",
         domain   => (split /\@/, $username)[1],
@@ -78,7 +79,7 @@ say "New account $user->{username} added.";
 ## Send email
 my $msg = MIME::Lite->new(
     From    => 'admin@fripost.org',
-    To      => 'test@example.com',
+    To      => $user->{username},
     Subject => "=?UTF-8?B?" .
         encode_base64(encode("utf8", 'Välkommen till Fripost!'), "") . "?=",
     Data    => scalar slurp('templ/new_user_mail.tt'), # TODO: actually use TT
