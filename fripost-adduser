@@ -36,15 +36,19 @@ GetOptions(
     'dbi_dsn'   => \$conf->{dbi_dsn},
     'admuser=s' => \$conf->{admuser},
     'admpass=s' => \$conf->{admpass},
+    'debug'     => \$conf->{debug},
     'pretend'   => \$conf->{pretend},
+    'verbose'   => \$conf->{verbose},
 ) or die "Unable to get command line options.";
+
+sub dsay { say @_ if $conf->{debug}; }
+sub vsay { say @_ if $conf->{verbose} || $conf->{debug}; }
 
 # Connect to the database
 my $schema = Fripost::Schema->connect(
     $conf->{dbi_dsn}, $conf->{admuser}, $conf->{admpass}, {} #\%dbi_params
 );
 
-say "Adding a new virtual user.";
 my $user;
 {
     my $username = prompt_email("New username: ", 'is_user');
@@ -63,7 +67,7 @@ my $user;
         password => $password,
     };
 
-    say "Username:  $user->{username}";
+    say "User name:  $user->{username}";
     say "Real name: $user->{name}";
     say "Password:  (hidden)";
 
@@ -76,7 +80,7 @@ die "User already exists"
 
 ## Insert user into database
 if ($conf->{pretend}) {
-    say "Did not create user since we are pretending."
+    vsay "Did not create user since we are pretending."
 }
 else {
     $schema->resultset('Mailbox')->new($user)->insert;
@@ -114,9 +118,11 @@ $msg->attr('content-type.charset' => 'utf-8');
         $msg->send() unless $conf->{pretend};;
         say "Sent welcome message.";
     }
-    say "----------------------------------- Welcome";
-    say decode_qp($msg->as_string);
-    say "-----------------------------------";
+    dsay "-----------------------------------";
+    dsay "| Welcome mail                    |";
+    dsay "-----------------------------------";
+    dsay decode_qp($msg->as_string);
+    dsay "-----------------------------------";
 }
 
 ### Send login credentials to new user
@@ -132,11 +138,11 @@ $msg->attr('content-type.charset' => 'utf-8');
 
     $msg->data($data);
 
-    say "Login information mail:";
-    say "----------------------------------- Credentials";
-    say decode_qp($msg->as_string);
-    say "-----------------------------------";
-
+    dsay "-----------------------------------";
+    dsay "| Login credentials mail          |";
+    dsay "-----------------------------------";
+    dsay decode_qp($msg->as_string);
+    dsay "-----------------------------------";
 
     confirm_or_abort("Send email with login information? ");
     my $to = prompt_email("Where should the email be sent? ");
