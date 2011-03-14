@@ -21,7 +21,7 @@ Stefan Kangas C<< <skangas at skangas.se> >>
 
 =head1 COPYRIGHT
 
-Copyright 2010 Stefan Kangas, all rights reserved.
+Copyright 2010,2011 Stefan Kangas, all rights reserved.
 
 =head1 LICENSE
 

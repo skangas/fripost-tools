@@ -54,7 +54,7 @@ Please report any bugs to C<< <skangas at skangas.se> >>
 
 Copyright (c) 2010 Dominik Schulz (dominik.schulz@gauner.org). All rights reserved.
 
-Copyright 2010 Stefan Kangas, all rights reserved.
+Copyright 2010,2011 Stefan Kangas, all rights reserved.
 
 =head1 LICENSE
 

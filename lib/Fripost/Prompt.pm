@@ -84,7 +84,7 @@ Stefan Kangas C<< <skangas at skangas.se> >>
 
 =head1 COPYRIGHT
 
-Copyright 2010 Stefan Kangas.
+Copyright 2010,2011 Stefan Kangas.
 
 =head1 LICENSE
 
