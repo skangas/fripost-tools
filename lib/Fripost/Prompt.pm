@@ -34,7 +34,7 @@ sub fix_username {
     my ($nam) = @_;
     if ($nam !~ /\@/) {
         $nam .= '@fripost.org';
-        say "Using $nam";
+        say "Using username: $nam";
     }
     return $nam;
 }
@@ -80,7 +80,7 @@ sub prompt_password {
             -minnum => 2,
             -minspecial => 2,
         );
-        say "Generated password: $password";    
+        say "Using password: $password";    
     }
     return smd5($password);
 }
