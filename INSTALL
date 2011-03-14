@@ -4,4 +4,4 @@ If you use Debian GNU/Linux, you can install them like so:
 
 aptitude install -R libdatetime-format-mysql-perl libdatetime-perl \
 libdbix-class-perl libemail-valid-perl libfile-slurp-perl libio-prompt-perl \
-libmime-lite-perl libstring-mkpasswd-perl libyaml-syck-perl
+libmime-base64-perl libmime-lite-perl libstring-mkpasswd-perl libyaml-syck-perl

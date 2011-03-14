@@ -16,13 +16,16 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 
 use Data::Dumper;
+use Encode qw(encode);
 use File::Slurp qw(slurp);
 use Fripost::Password;
 use Fripost::Prompt;
 use Fripost::Schema;
-use IO::Prompt;
 use Getopt::Long;
+use IO::Prompt;
+use MIME::Base64;
 use MIME::Lite;
+use MIME::QuotedPrint;
 use YAML::Syck;
 
 # Prompt for user info
@@ -86,14 +89,20 @@ say "New account $user->{username} added.";
 ## Send email
 my $msg = MIME::Lite->new(
     From    => 'admin@fripost.org',
-    To      => $user->{username},
-    Subject => 'Välkommen till Fripost!',
+    To      => 'test@example.com',
+    Subject => "=?UTF-8?B?" .
+        encode_base64(encode("utf8", 'Välkommen till Fripost!'), "") . "?=",
     Data    => scalar slurp('templ/new_user_mail.tt'), # TODO: actually use TT
+    Encoding => 'quoted-printable',
 );
+
+$msg->attr('content-type.charset' => 'utf-8');
 $msg->send();
 
 say "Sent welcome message: ";
 say $msg->as_string;
+#say decode_qp($msg->as_string);
+
 
 =head1 AUTHOR
 
