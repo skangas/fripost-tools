@@ -17,7 +17,8 @@ use Exporter;
 use IO::Prompt;
 use String::MkPasswd qw/mkpasswd/;
 
-our @EXPORT = qw(prompt_password prompt_username);
+our @EXPORT = qw(confirm_or_abort fix_username prompt_email prompt_password);
+our @ISA = qw(Exporter);
 
 sub confirm_or_abort {
     my ($msg) = @_;

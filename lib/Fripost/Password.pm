@@ -17,6 +17,7 @@ use Exporter;
 use MIME::Base64;
 
 our @EXPORT = qw/smd5 make_salt/;
+our @ISA = qw(Exporter);
 
 sub smd5 {
     my $pw = shift;
