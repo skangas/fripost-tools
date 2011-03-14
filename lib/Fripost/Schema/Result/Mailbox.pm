@@ -6,6 +6,8 @@ use strict;
 
 use base qw/DBIx::Class::Core/;
 
+use Fripost::Password;
+
 # mysql> describe mailbox;
 # +-------------+--------------+------+-----+---------------------+-------+
 # | Field       | Type         | Null | Key | Default             | Extra |
@@ -31,6 +33,22 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->set_primary_key('username');
+
+=head2 store_column
+
+override store_column to encrypt the password when stored
+
+=cut 
+
+sub store_column {
+    my ($self, $col, $val) = @_;
+    
+    if ($col eq 'password') {
+        $val = smd5($val);
+    }
+    
+    return $self->next::method($col,$val);
+}
 
 =head1 NAME
 

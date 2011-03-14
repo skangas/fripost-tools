@@ -82,7 +82,7 @@ sub prompt_password {
         );
         say "Using password: $password";    
     }
-    return smd5($password);
+    return $password;
 }
 
 =head1 AUTHOR

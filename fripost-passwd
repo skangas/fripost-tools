@@ -13,21 +13,11 @@ fripost-passwd - Change password of user
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 
-our $VERSION = '0.01';
-
 use Fripost::Password;
 use Fripost::Prompt;
 use Fripost::Schema;
 use Getopt::Long;
 use YAML::Syck;
-
-my $username = $ARGV[0];
-$username //= prompt_username();
-my $password = prompt_password();
-
-# Show the information that will be inserted
-say "Password: $password";
-say "Salted MD5: " . smd5($password);
 
 ## Get command line options
 our $conf = LoadFile('default.yml');
@@ -39,6 +29,10 @@ GetOptions(
     'pretend'   => \$conf->{pretend},
 ) or die "Unable to get command line options.";
 
+my $username = $ARGV[0];
+$username //= prompt_email("New username: ", 'is_user');
+my $password = prompt_password();
+
 if ($conf->{pretend}) {
     say "Nothing to do since we are pretending...";
     exit 0;
@@ -48,16 +42,11 @@ if ($conf->{pretend}) {
 my $schema = Fripost::Schema->connect(
     $conf->{dbi_dsn}, $conf->{admuser}, $conf->{admpass}, {} #\%dbi_params
 );
-
 my $row = $schema->resultset('Mailbox')->find($username);
-
-$row->password(smd5($password));
-
+$row->password($password);
 $row->update;
 
 say "Updated password for $username.";
-
-# TODO: ändra changedate vid varje insert
 
 =head1 AUTHOR
 
