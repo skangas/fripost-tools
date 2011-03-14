@@ -70,7 +70,7 @@ if (@addr == 0) {
     say "No valid destination adresses. Aborting...";
     exit 1;
 }
-say "dest adress: " . (join " ", @addr);
+say "from adress: " . (join " ", @addr);
 confirm_or_abort();
 
 ## Insert alias into database
