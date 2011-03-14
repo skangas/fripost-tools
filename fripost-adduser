@@ -26,6 +26,7 @@ use IO::Prompt;
 use MIME::Base64;
 use MIME::Lite;
 use MIME::QuotedPrint;
+use Template;
 use YAML::Syck;
 
 ## Get command line options
@@ -73,36 +74,81 @@ die "User already exists"
     if ($schema->resultset('Mailbox')->search({
         username => $user->{username} })->count);
 
+## Insert user into database
 if ($conf->{pretend}) {
-    say "Nothing to do since we are pretending...";
-    exit 0;
+    say "Did not create user since we are pretending."
+}
+else {
+    $schema->resultset('Mailbox')->new($user)->insert;
+    say "New account $user->{username} added.";
 }
 
-## Insert user into database
-my $db_user = $schema->resultset('Mailbox')->new($user);
-$db_user->insert;
-say "New account $user->{username} added.";
+### Prepare sending emails
 
-## Send email
+my $tt = Template->new({
+    INCLUDE_PATH => "$Bin/templ",
+    INTERPOLATE  => 1,
+}) || die "$Template::ERROR\n";
+
 my $msg = MIME::Lite->new(
-    From    => 'admin@fripost.org',
-    To      => $user->{username},
+    From    => 'Friposts administratörer <admin@fripost.org>',
     Subject => "=?UTF-8?B?" .
         encode_base64(encode("utf8", 'Välkommen till Fripost!'), "") . "?=",
-    Data    => scalar slurp('templ/new_user_mail.tt'), # TODO: actually use TT
     Encoding => 'quoted-printable',
 );
 
 $msg->attr('content-type.charset' => 'utf-8');
-$msg->send();
 
-say "Sent welcome message: ";
-say $msg->as_string;
-#say decode_qp($msg->as_string);
+### Send welcome email to new user
+{
+    my ($vars, $data);
+    $vars = {};
+    $tt->process('new_user_mail.tt', $vars, \$data)
+        || die $tt->error(), '\n';
 
-confirm_or_abort("Send email with login information? ");
+    $msg->replace(To => $user->{username});
+    $msg->data($data);
 
-prompt_email("Where should the email be sent? ");
+
+    unless ($conf->{pretend}) {
+        $msg->send() unless $conf->{pretend};;
+        say "Sent welcome message.";
+    }
+    say "----------------------------------- Welcome";
+    say decode_qp($msg->as_string);
+    say "-----------------------------------";
+}
+
+### Send login credentials to new user
+{
+    my ($vars, $data);
+    $vars = {
+        user => $user->{username},
+        pass => $user->{password},
+        real => $user->{name},
+    };
+    $tt->process('user_info.tt', $vars, \$data)
+        || die $tt->error(), '\n';
+
+    $msg->data($data);
+
+    say "Login information mail:";
+    say "----------------------------------- Credentials";
+    say decode_qp($msg->as_string);
+    say "-----------------------------------";
+
+
+    confirm_or_abort("Send email with login information? ");
+    my $to = prompt_email("Where should the email be sent? ");
+    $msg->replace(To => $to);
+    if (!$conf->{pretend}) {
+        $msg->send;
+        say "Credentials sent.";
+    }
+    else {
+        say "Pretending, will not send credentials.";
+    }
+}
 
 =head1 AUTHOR
 
