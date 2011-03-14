@@ -16,7 +16,6 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 
 use Data::Dumper;
-use Encode qw(encode);
 use File::Slurp qw(slurp);
 use Fripost::Password;
 use Fripost::Prompt;
@@ -96,8 +95,7 @@ my $tt = Template->new({
 
 my $msg = MIME::Lite->new(
     From    => 'Friposts administratörer <admin@fripost.org>',
-    Subject => "=?UTF-8?B?" .
-        encode_base64(encode("utf8", 'Välkommen till Fripost!'), "") . "?=",
+    Subject => "=?UTF-8?B?" . encode_base64('Välkommen till Fripost!' . "?=",
     Encoding => 'quoted-printable',
 );
 
