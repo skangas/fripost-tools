@@ -46,18 +46,25 @@ my $schema = Fripost::Schema->connect(
 say "Adding a new virtual user.";
 my $user;
 {
+    my $username = prompt_email("New username: ", 'is_user');
+    my $name     = prompt "Full (real) name: ";
+    my $domain   = (split /\@/, $username)[1];
+    my $maildir  = "$domain/". (split /\@/, $username)[0] . "/Maildir/"; # trailing slash important
+    my $active   = 1;
+    my $password = prompt_password();
+
     $user = {
-        username => prompt_email("New username: ", 'is_user'),
-        name     => prompt "Full (real) name: ",
-        domain   => (split /\@/, $username)[1],
-        maildir  => "$domain/". (split /\@/, $username)[0] . "/Maildir/", # trailing slash important
-        active   => 1,
-        password => prompt_password(),
+        username => $username,
+        name     => $name,
+        domain   => $domain,
+        maildir  => $maildir,
+        active   => $active,
+        password => $password,
     };
 
-    say "Username: $user->{username}";
-    say "Name:     $user->{name}";
-    say "Password: (hidden)";
+    say "Username:  $user->{username}";
+    say "Real name: $user->{name}";
+    say "Password:  (hidden)";
 
     confirm_or_abort();
 }
