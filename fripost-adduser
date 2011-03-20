@@ -1,8 +1,9 @@
 #!/usr/bin/perl
 
 use 5.010_000;
-use warnings;
 use strict;
+use warnings;
+use utf8;
 
 =head1 NAME
 
@@ -10,12 +11,11 @@ fripost-adduser - Add a new mailbox to the system
 
 =cut
 
-our $VERSION = '0.02';
-
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 
 use Data::Dumper;
+use Encode qw(encode);
 use File::Slurp qw(slurp);
 use Fripost::Password;
 use Fripost::Prompt;
@@ -94,8 +94,8 @@ my $tt = Template->new({
 }) || die "$Template::ERROR\n";
 
 my $msg = MIME::Lite->new(
-    From    => 'Friposts administratörer <admin@fripost.org>',
-    Subject => "=?UTF-8?B?" . encode_base64('Välkommen till Fripost!' . "?=",
+    From    => encode('MIME-Q', 'Friposts administratörer') . ' <admin@fripost.org>',
+    Subject => encode('MIME-Q', 'Välkommen till Fripost!'),
     Encoding => 'quoted-printable',
 );
 
