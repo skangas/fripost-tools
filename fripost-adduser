@@ -105,12 +105,12 @@ $msg->attr('content-type.charset' => 'utf-8');
 {
     my ($vars, $data);
     $vars = {};
+
     $tt->process('new_user_mail.tt', $vars, \$data)
         || die $tt->error(), '\n';
-
-    $msg->replace(To => $user->{username});
     $msg->data($data);
 
+    $msg->replace(To => $user->{username});
 
     unless ($conf->{pretend}) {
         $msg->send() unless $conf->{pretend};;
@@ -131,9 +131,9 @@ $msg->attr('content-type.charset' => 'utf-8');
         pass => $user->{password},
         real => $user->{name},
     };
+
     $tt->process('user_info.tt', $vars, \$data)
         || die $tt->error(), '\n';
-
     $msg->data($data);
 
     dsay "-----------------------------------";
@@ -145,6 +145,7 @@ $msg->attr('content-type.charset' => 'utf-8');
     confirm_or_abort("Send email with login information? ");
     my $to = prompt_email("Where should the email be sent? ");
     $msg->replace(To => $to);
+
     if (!$conf->{pretend}) {
         $msg->send;
         say "Credentials sent.";
