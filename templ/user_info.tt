@@ -1,14 +1,11 @@
-Hej [% real %],
+Hej,
 
-Du är nu tillagd på Friposts system.
+Här kommer dina inloggningsuppgifter till Friposts system.
 
 Användarnamn: [% user %]
-Lösenord      [% pass %]
+Lösenord:     [% pass %]
 
-Tänk på att vara försiktig med dina uppgifter. Spara en kopia av det här mailet
-på en säker plats.
-
-Du kan logga in på:
+Du kan logga in direkt på:
 
     https://mail.fripost.org/
 
@@ -16,11 +13,16 @@ Frågor gällande ditt konto kan du ta direkt med administratörerna.
 
     admin@fripost.org
 
-Du kan hitta information om hur du konfigurerar din e-postklient för Fripost på
-vår wiki.  Vi försöker bygga upp medlemswikin till att bli den bästa resursen
-för intern information kring föreningen. Du får gärna hjälpa till!
+Vi försöker bygga upp medlemswikin till att bli den bästa resursen för intern
+information kring föreningen. Du får gärna hjälpa till!
 
     http://wiki.fripost.org/
+
+Tänk på att vara försiktig med dina uppgifter. Spara gärna en kopia av det här
+mailet på en säker plats.
+
+Tyvärr finns det just nu inget smidigt sätt att byta sitt lösenord på. Vi jobbar
+på det.
 
 Ha kul!
 
