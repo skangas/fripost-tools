@@ -1,8 +1,9 @@
 #!/usr/bin/perl
 
 use 5.010_000;
-use warnings;
 use strict;
+use warnings;
+use utf8;
 
 =head1 NAME
 
@@ -18,13 +19,17 @@ fripost-newalias GOTO FROM...
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 
-use Data::Dumper;
+use Encode qw(encode);
 use Email::Valid;
 use Fripost::Password;
 use Fripost::Prompt;
 use Fripost::Schema;
 use IO::Prompt;
 use Getopt::Long;
+use MIME::Base64;
+use MIME::Lite;
+use MIME::QuotedPrint;
+use Template;
 use YAML::Syck;
 
 ## Get command line options
@@ -47,11 +52,6 @@ my $goto = fix_username(shift @ARGV);
 my @addr = @ARGV;
 $goto //= prompt_username("Alias goto address: ");
 @addr || push @addr, prompt "Alias address: ";
-
-if ($conf->{pretend}) {
-    say "Nothing to do since we are pretending...";
-    exit 0;
-}
 
 # Show goto adress
 say "goto adress: $goto";
@@ -84,12 +84,49 @@ for my $addr (@addr) {
             goto    => $goto,
             domain  => (split /\@/, $addr)[1],
         });
-        $db_alias->insert;
-
-        say "New alias added from $addr to $goto.";
+        if (!$conf->{pretend}) {
+            $db_alias->insert;
+            say "New alias added from $addr to $goto.";
+        } else {
+            say "Pretending, will not add alias."
+        }
     }
     else {
         say "There already exists an alias for $addr.";
+    }
+}
+
+### Prepare sending emails
+my $tt = Template->new({
+    INCLUDE_PATH => "$Bin/templ",
+    INTERPOLATE  => 1,
+}) || die "$Template::ERROR\n";
+
+my $msg = MIME::Lite->new(
+    From    => encode('MIME-Q', 'Friposts administratörer') . ' <admin@fripost.org>',
+    Subject => encode('MIME-Q', 'Nya alias till din inkorg'),
+    Encoding => 'quoted-printable',
+);
+
+{
+    my ($vars, $data);
+    $vars = {
+        addrs => \@addr,
+    };
+
+    $tt->process('new_alias.tt', $vars, \$data)
+        || die $tt->error(), '\n';
+    $msg->data($data);
+
+    $msg->replace(To => $goto);
+    
+    if (!$conf->{pretend}) {
+        confirm_or_abort("Send confirmation? ");
+        $msg->send;
+        say "Sent verification.";
+    }
+    else {
+        say "Pretending, will not send verification.";
     }
 }
 

@@ -113,7 +113,7 @@ $msg->attr('content-type.charset' => 'utf-8');
     $msg->replace(To => $user->{username});
 
     unless ($conf->{pretend}) {
-        $msg->send() unless $conf->{pretend};;
+        $msg->send() unless $conf->{pretend};
         say "Sent welcome message.";
     }
     dsay "-----------------------------------";

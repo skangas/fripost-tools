@@ -1,0 +1,12 @@
+Hej,
+
+Följande adresser går nu till den här inkorgen:
+
+[% FOREACH addr IN addrs -%]
+  [% addr %]
+[% END -%]
+
+Hör av dig om något är fel eller annars är oklart.
+
+Med vänliga hälsningar,
+Administratörerna
