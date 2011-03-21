@@ -32,9 +32,9 @@ sub confirm_or_abort {
 
 sub fix_username {
     my ($nam) = @_;
-    if ($nam !~ /\@/) {
+    if (defined $nam && $nam !~ /\@/) {
         $nam .= '@fripost.org';
-        say "Using username: $nam";
+        say "Using $nam";
     }
     return $nam;
 }

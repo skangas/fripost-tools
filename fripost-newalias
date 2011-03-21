@@ -50,8 +50,8 @@ my $schema = Fripost::Schema->connect(
 # Get information
 my $goto = fix_username(shift @ARGV);
 my @addr = @ARGV;
-$goto //= prompt_username("Alias goto address: ");
-@addr || push @addr, prompt "Alias address: ";
+$goto //= prompt_email("Alias goto address: ", 'is_user');
+@addr || push @addr, prompt "Alias from address: ";
 
 # Show goto adress
 say "goto adress: $goto";

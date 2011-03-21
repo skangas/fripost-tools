@@ -3,14 +3,13 @@
 use 5.010_000;
 use warnings;
 use strict;
+use utf8;
 
 =head1 NAME
 
 fripost-newdomain - Add a new domain to the system
 
 =cut
-
-our $VERSION = '0.01';
 
 use FindBin qw($Bin);
 use lib "$Bin/lib";
@@ -27,7 +26,7 @@ use YAML::Syck;
 our $conf = LoadFile('default.yml');
 
 GetOptions(
-    'dbi_dsn'    => \$conf->{dbi_dsn},
+    'dbi_dsn'   => \$conf->{dbi_dsn},
     'admuser=s' => \$conf->{admuser},
     'admpass=s' => \$conf->{admpass},
     'pretend'   => \$conf->{pretend},
@@ -38,13 +37,12 @@ my $schema = Fripost::Schema->connect(
     $conf->{dbi_dsn}, $conf->{admuser}, $conf->{admpass}, {} #\%dbi_params
 );
 
-say "Adding a new domain.";
-
 my %domain;
 $domain{domain}      = prompt "Domain name: ";
-$domain{description} = prompt_username("User to associate domain with: ");
+$domain{description} = prompt_email("Belongs to user: ", 'is_user');
 
 ## TODO: Make sure the user does exists
+## TODO: Warn if the user has a domain already
 
 if ($conf->{pretend}) {
     say "Nothing to do since we are only pretending...";
