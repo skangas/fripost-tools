@@ -47,7 +47,7 @@ sub prompt_email {
         $email = prompt $msg;
 
         if ($is_username) {
-            $email = fix_username($email)
+            $email = fix_username($email);
         }
 
         if (!Email::Valid->address($email)) {
