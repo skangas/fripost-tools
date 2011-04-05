@@ -51,7 +51,6 @@ my $schema = Fripost::Schema->connect(
 my $user;
 {
     my $username = prompt_email("New username: ", 'is_user');
-    my $name     = prompt "Full (real) name: ";
     my $domain   = (split /\@/, $username)[1];
     my $maildir  = "$domain/". (split /\@/, $username)[0] . "/Maildir/"; # trailing slash important
     my $active   = 1;
@@ -59,7 +58,6 @@ my $user;
 
     $user = {
         username => $username,
-        name     => $name,
         domain   => $domain,
         maildir  => $maildir,
         active   => $active,
@@ -67,7 +65,6 @@ my $user;
     };
 
     say "User name: $user->{username}";
-    say "Real name: $user->{name}";
     say "Password:  (hidden)";
 
     confirm_or_abort();
@@ -129,7 +126,6 @@ $msg->attr('content-type.charset' => 'utf-8');
     $vars = {
         user => $user->{username},
         pass => $user->{password},
-        real => $user->{name},
     };
 
     $tt->process('user_info.tt', $vars, \$data)
