@@ -23,13 +23,13 @@ use YAML::Syck;
 our $conf = LoadFile('default.yml');
 
 GetOptions(
-    'dbi_dsn'    => \$conf->{dbi_dsn},
+    'dbi_dsn'   => \$conf->{dbi_dsn},
     'admuser=s' => \$conf->{admuser},
     'admpass=s' => \$conf->{admpass},
     'pretend'   => \$conf->{pretend},
 ) or die "Unable to get command line options.";
 
-my $username = $ARGV[0];
+my $username = fix_username($ARGV[0]);
 $username //= prompt_email("New username: ", 'is_user');
 my $password = prompt_password();
 
