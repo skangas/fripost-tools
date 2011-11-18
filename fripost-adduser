@@ -120,6 +120,15 @@ $msg->attr('content-type.charset' => 'utf-8');
     dsay "-----------------------------------";
 }
 
+### Subscribe user to announce-list
+if (confirm("Subscribe user to announce mailing list? ")) {
+    $msg->replace(From => $user->{username});
+    $msg->replace(To => 'announce-subscribe@lists.fripost.org');
+    $msg->replace(Subject => '');
+    $msg->replace(Data => '');
+    $msg->send();
+}
+
 ### Send login credentials to new user
 {
     my ($vars, $data);
@@ -149,16 +158,6 @@ $msg->attr('content-type.charset' => 'utf-8');
     else {
         say "Pretending, will not send credentials.";
     }
-}
-
-### Subscribe user to announce-list
-{
-    confirm_or_abort("Subscribe user to announce mailing list? ");
-    $msg->replace(From => $user->{username});
-    $msg->replace(To => 'announce-subscribe@lists.fripost.org');
-    $msg->replace(Subject => '');
-    $msg->replace(Data => '');
-    $msg->send();
 }
 
 =head1 AUTHOR
