@@ -17,8 +17,14 @@ use Exporter;
 use IO::Prompt;
 use String::MkPasswd qw/mkpasswd/;
 
-our @EXPORT = qw(confirm_or_abort fix_username prompt_email prompt_password);
+our @EXPORT = qw(confirm confirm_or_abort fix_username prompt_email prompt_password);
 our @ISA = qw(Exporter);
+
+sub confirm {
+    my ($msg) = @_;
+    $msg //= "Is this OK? [no will abort] ";
+    return prompt $msg, -ynt;
+}
 
 sub confirm_or_abort {
     my ($msg) = @_;
