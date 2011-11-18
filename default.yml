@@ -1,3 +1,4 @@
 # default.yml -- defaults for fripost administrative scripts
 ---
 dbi_dsn: dbi:mysql:mail;host=127.0.0.1;port=3306
+admin_email: admin@fripost.org
