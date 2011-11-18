@@ -1,4 +1,4 @@
-You need several cpan modules to use these scripts.
+You need several CPAN modules to use these scripts.
 
 If you use Debian GNU/Linux, you can install them like so:
 
@@ -6,3 +6,5 @@ sudo aptitude install -R libdatetime-format-mysql-perl libdatetime-perl \
 libdbix-class-perl libemail-valid-perl libfile-slurp-perl libio-prompt-perl \
 libmime-base64-perl libmime-lite-perl libstring-mkpasswd-perl \
 libtemplate-perl libyaml-syck-perl
+
+This will most probably work for Ubuntu as well.
